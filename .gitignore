@@ -210,3 +210,12 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+.vs
+Debug
+x64
+csci3260-asg1/Debug
+csci3260-asg1/x64
+csci3260-asg1-sample/Debug
+csci3260-asg1-sample/x64
+csci3260-asg1.VC.VC.opendb
