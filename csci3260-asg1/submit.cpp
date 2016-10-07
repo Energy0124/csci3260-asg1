@@ -745,7 +745,7 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(WIDTH, HEIGHT);
 	/*Create a window with title specified*/
 	//TODO:
-	glutCreateWindow("Clannad is the best anime! ACGN for the win!");
+	glutCreateWindow("Touhou Project is the best! Dota 2 for the win!");
 
 
 	initializedGL();
