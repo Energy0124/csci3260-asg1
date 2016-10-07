@@ -1,7 +1,7 @@
 	CSCI3260 Assignment 1 Keyboard / Mouse Events  
 
-Name: 
-Student ID:
+Name: Ling Leong
+Student ID: 1155062557
 
 Manipulation:
 	// For example:

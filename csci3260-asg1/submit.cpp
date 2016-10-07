@@ -19,7 +19,7 @@ Student Name: Ling Leong
 using namespace std;
 
 // Window dimensions
- GLuint WIDTH = 800, HEIGHT = 600;
+GLuint WIDTH = 800, HEIGHT = 600;
 
 GLint programID;
 glm::vec3 cubePositions[10];
@@ -216,6 +216,11 @@ void keyboard(unsigned char key, int x, int y)
 	{
 		sensitivity += 0.02f;
 
+	}
+
+	if (key == 27)
+	{
+		glutLeaveMainLoop();
 	}
 
 
@@ -591,7 +596,7 @@ void updateCamera()
 	//camX = sin((GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.0001f) * radius;
 	//camZ = cos((GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.0001f) * radius;
 
-	GLfloat currentFrame = (GLfloat) glutGet(GLUT_ELAPSED_TIME);
+	GLfloat currentFrame = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 	deltaCameraTime = currentFrame - lastCameraFrame;
 	lastCameraFrame = currentFrame;
 	// Camera controls
@@ -718,7 +723,7 @@ void paintGL(void)
 	glFlush();
 	glutPostRedisplay();
 
-	
+
 
 	calculateFPS();
 }
