@@ -601,19 +601,7 @@ void updateCamera()
 	lastCameraFrame = currentFrame;
 	// Camera controls
 	GLfloat cameraSpeed = 0.01f*deltaCameraTime;
-	/*switch (key) {
-	case GLUT_KEY_LEFT:
 
-	break;
-	case GLUT_KEY_RIGHT:
-
-	break;
-	case GLUT_KEY_UP:
-	cameraPos += cameraSpeed * cameraFront;
-	break;
-	case GLUT_KEY_DOWN:
-	break;
-	}*/
 	if (keys[GLUT_KEY_UP])
 		cameraPos += cameraSpeed * cameraFront;
 	if (keys[GLUT_KEY_DOWN])
@@ -686,9 +674,9 @@ void updateRatio()
 
 void paintGL(void)
 {
-	//TODO:
+	
 	//render your objects and control the transformation here
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //background color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (wireframeMode)
@@ -701,13 +689,6 @@ void paintGL(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	/*glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);*/
-
-	/*	glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);*/
 
 	updateRatio();
 
@@ -744,8 +725,8 @@ int main(int argc, char *argv[])
 	//Initialize the windows size
 	glutInitWindowSize(WIDTH, HEIGHT);
 	/*Create a window with title specified*/
-	//TODO:
-	glutCreateWindow("Touhou Project is the best! Dota 2 for the win!");
+
+	glutCreateWindow("Touhou Project is the best! Dota 2 for the win! -- 1155062557");
 
 
 	initializedGL();
