@@ -13,9 +13,13 @@ Student Name: Ling Leong
 #include "Dependencies\glm\glm.hpp"
 #include "Dependencies\glm\gtc\matrix_transform.hpp"
 #include "Dependencies\glm\gtc\type_ptr.hpp"
+#include "Dependencies\freeglut\freeglut_ext.h"
 #include <iostream>
 #include <fstream>
 using namespace std;
+
+// Window dimensions
+ GLuint WIDTH = 800, HEIGHT = 600;
 
 GLint programID;
 glm::vec3 cubePositions[10];
@@ -25,6 +29,29 @@ GLfloat deltaX = 0.05f, deltaY = 0.05f, deltaZ = 0.05f;
 GLfloat scaleFactor = 1, deltaScale = 1.05f;
 GLint rotation = 0;
 GLfloat deltaAngle = 0.05f;
+
+//GLfloat radius = 10.0f;
+//GLfloat camX = 0;
+//GLfloat camZ = 0;
+// Camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+GLfloat deltaCameraTime = 0.0f;	// Time between current frame and last frame
+GLfloat lastCameraFrame = 0.0f;  	// Time of last frame
+
+GLfloat sensitivity = 0.1f;
+GLfloat lastX = WIDTH / 2.0f;
+GLfloat lastY = HEIGHT / 2.0f;
+bool firstMouse = true;
+
+GLfloat yaw = -90.0f;	// Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
+GLfloat pitch = 0.0f;
+
+GLfloat fov = 45.0f;
+
+bool keys[1024];
 
 GLuint VBO_Tetrahedron, VAO_Tetrahedron, EBO_Tetrahedron;
 GLuint VBO_Ground, VAO_Ground, EBO_Ground;
@@ -36,8 +63,7 @@ int lastTime = 0;
 int deltaTime = 0;
 int deltaFrame = 0;
 
-// Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+
 
 
 bool checkStatus(
@@ -169,7 +195,46 @@ void keyboard(unsigned char key, int x, int y)
 	{
 		wireframeMode = !wireframeMode;
 	}
+	if (key == 'c')
+	{
+		//		static int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+		//		static int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+		//		lastX = centerX;
+		//		lastY = centerY;
+		yaw = -90.0f;
+		pitch = 0.0f;
+		cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+		firstMouse = true;
 
+	}
+	if (key == 'z')
+	{
+
+		sensitivity -= 0.02f;
+	}
+	if (key == 'x')
+	{
+		sensitivity += 0.02f;
+
+	}
+
+
+}
+
+void handleSpecialKeypress(int key, int x, int y) {
+	if (key >= 0 && key < 1024)
+	{
+		keys[key] = true;
+	}
+
+
+}
+
+void handleSpecialKeyReleased(int key, int x, int y) {
+	if (key >= 0 && key < 1024)
+	{
+		keys[key] = false;
+	}
 }
 
 void bindTenColorCube()
@@ -415,9 +480,11 @@ void drawTenCubes()
 	glm::mat4 projection;
 
 	//model = glm::rotate(model, (GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.001f, glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(-2.0f, 0.0f, -5.0f));
+	//view = glm::translate(view, glm::vec3(-2.0f, 0.0f, -5.0f));
+	//view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 	// Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-	projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+	projection = glm::perspective(fov, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	// Get their uniform location
 	GLint modelLoc = glGetUniformLocation(programID, "model");
 	GLint viewLoc = glGetUniformLocation(programID, "view");
@@ -456,9 +523,12 @@ void drawTetrahedron()
 	glm::mat4 projection;
 
 	//model = glm::rotate(model, (GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.001f, glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	//view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 	// Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-	projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+	projection = glm::perspective(fov, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+
 
 
 	model = glm::translate(model, glm::vec3(deltaX * xAxis, deltaY * yAxis, deltaZ * zAxis));
@@ -482,6 +552,7 @@ void drawTetrahedron()
 	glBindVertexArray(0);
 }
 
+
 void drawGround()
 {
 	// Create transformations
@@ -489,10 +560,17 @@ void drawGround()
 	glm::mat4 view;
 	glm::mat4 projection;
 
+
+
 	model = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.5f));
+	model = glm::translate(model, glm::vec3(0.0f, -0.5f, -2.5f));
+	model = glm::scale(model, 3.0f*glm::vec3(1.0f));
+	//view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.5f));
+	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
+	//view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 	// Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-	projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+	projection = glm::perspective(fov, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	// Get their uniform location
 	GLint modelLoc = glGetUniformLocation(programID, "model");
 	GLint viewLoc = glGetUniformLocation(programID, "view");
@@ -507,6 +585,99 @@ void drawGround()
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
+
+void updateCamera()
+{
+	//camX = sin((GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.0001f) * radius;
+	//camZ = cos((GLfloat)glutGet(GLUT_ELAPSED_TIME) * 0.0001f) * radius;
+
+	GLfloat currentFrame = (GLfloat) glutGet(GLUT_ELAPSED_TIME);
+	deltaCameraTime = currentFrame - lastCameraFrame;
+	lastCameraFrame = currentFrame;
+	// Camera controls
+	GLfloat cameraSpeed = 0.01f*deltaCameraTime;
+	/*switch (key) {
+	case GLUT_KEY_LEFT:
+
+	break;
+	case GLUT_KEY_RIGHT:
+
+	break;
+	case GLUT_KEY_UP:
+	cameraPos += cameraSpeed * cameraFront;
+	break;
+	case GLUT_KEY_DOWN:
+	break;
+	}*/
+	if (keys[GLUT_KEY_UP])
+		cameraPos += cameraSpeed * cameraFront;
+	if (keys[GLUT_KEY_DOWN])
+		cameraPos -= cameraSpeed * cameraFront;
+	if (keys[GLUT_KEY_LEFT])
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (keys[GLUT_KEY_RIGHT])
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+};
+
+
+void handlePassiveMotion(int x, int y)
+{
+	if (firstMouse)
+	{
+		lastX = (GLfloat)x;
+		lastY = (GLfloat)y;
+		firstMouse = false;
+	}
+
+	GLfloat xoffset = x - lastX;
+	GLfloat yoffset = lastY - y;
+	lastX = (GLfloat)x;
+	lastY = (GLfloat)y;
+
+
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+
+
+	//failed mouse capture, glut sucks
+//	static int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+//	static int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+//	if (x >= centerX+100 || y >= centerY+100|| x <= centerX - 100 || y <= centerY - 100) glutWarpPointer(centerX, centerY);
+
+
+}
+void handleMouseWheel(int wheel, int direction, int x, int y)
+{
+	if (fov >= 1.0f && fov <= 60.0f)
+		fov -= direction*0.05f;
+	//cout << direction<<" "<<fov <<endl;
+	if (fov <= 1.0f)
+		fov = 1.0f;
+	if (fov >= 60.0f)
+		fov = 60.0f;
+}
+
+void updateRatio()
+{
+	WIDTH = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	HEIGHT = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+};
 
 void paintGL(void)
 {
@@ -533,6 +704,10 @@ void paintGL(void)
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);*/
 
+	updateRatio();
+
+	updateCamera();
+
 	drawTetrahedron();
 
 	drawTenCubes();
@@ -543,6 +718,8 @@ void paintGL(void)
 	glFlush();
 	glutPostRedisplay();
 
+	
+
 	calculateFPS();
 }
 
@@ -552,6 +729,7 @@ void initializedGL(void) //run only once
 	sendDataToOpenGL();
 	installShaders();
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -566,6 +744,7 @@ int main(int argc, char *argv[])
 
 
 	initializedGL();
+	glViewport(0, 0, WIDTH, HEIGHT);
 
 	//enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -573,8 +752,14 @@ int main(int argc, char *argv[])
 	/*Register different CALLBACK function for GLUT to response
 	with different events, e.g. window sizing, mouse click or
 	keyboard stroke */
+
 	glutDisplayFunc(paintGL);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(handleSpecialKeypress);
+	glutSpecialUpFunc(handleSpecialKeyReleased);
+	glutPassiveMotionFunc(handlePassiveMotion);
+	glutMouseWheelFunc(handleMouseWheel);
+
 
 	/*Enter the GLUT event processing loop which never returns.
 	it will call different registered CALLBACK according
